@@ -16,7 +16,24 @@ from scipy.stats import shapiro, chi2
 from termcolor import colored
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
-from yellowbrick.cluster import KElbowVisualizer
+
+
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+
+inertia = []
+k_range = range(1, 11)
+for k in k_range:
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(X)  # X = data fitur kamu
+    inertia.append(kmeans.inertia_)
+
+plt.plot(k_range, inertia, marker='o')
+plt.xlabel('Jumlah Cluster (k)')
+plt.ylabel('Inertia')
+plt.title('Metode Elbow untuk Menentukan Jumlah Cluster')
+plt.show()
+
 
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
