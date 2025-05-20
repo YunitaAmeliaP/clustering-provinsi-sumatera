@@ -48,13 +48,13 @@ def plot_elbow(X, max_k=10):
         kmeans = KMeans(n_clusters=k, random_state=42)
         kmeans.fit(X)
         sse.append(kmeans.inertia_)
-    fig, ax = plt.subplots(figsize=(8,5))
-    ax.plot(range(1, max_k+1), sse, marker='o')
-    ax.set_xlabel('Number of clusters (k)')
-    ax.set_ylabel('Sum of squared distances (SSE)')
-    ax.set_title('Elbow Method For Optimal k')
-    st.pyplot(fig)
-
+    plt.figure(figsize=(8,5))
+    plt.plot(range(1, max_k+1), sse, marker='o')
+    plt.xlabel('Number of Clusters (k)')
+    plt.ylabel('Sum of Squared Errors (SSE)')
+    plt.title('Elbow Method For Optimal k')
+    plt.grid()
+    plt.show()
 
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
