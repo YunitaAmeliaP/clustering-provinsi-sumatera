@@ -1,214 +1,357 @@
-# -----------------------------------------------
-# STREAMLIT APP: KLUSTERING DATA PROVINSI SUMATERA UTARA
-# -----------------------------------------------
+# Import libraries
+import kagglehub
 
-import streamlit as st
+# Download dataset dari Kaggle
+dataset_path = kagglehub.dataset_download('wahyuikbalmaulana/dataset-provinsi-sumatera-utara')
+print("Dataset berhasil diunduh.")
+
+
+# Impor library lain
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-from scipy.stats import shapiro
+from scipy import stats
+from scipy.stats import shapiro, chi2
 from termcolor import colored
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from yellowbrick.cluster import KElbowVisualizer
+
 import warnings
-warnings.filterwarnings("ignore")
+warnings.filterwarnings("ignore", category=FutureWarning)
 
-# -----------------------------------------------
-# JUDUL DAN GAMBAR
-# -----------------------------------------------
-st.title("Klasterisasi Data Sosial Ekonomi Sumatera Utara")
-st.image("https://perkim.id/wp-content/uploads/2020/06/sumut-scaled.jpg", caption="Gambar Sumatera Utara", use_column_width=True)
 
-st.markdown("""
-**Tujuan Analisis:**
-- Menentukan jumlah kluster optimal
-- Mengelompokkan kabupaten/kota berdasarkan indikator sosial ekonomi
-""")
+# ===== 2. Data =====
 
-# -----------------------------------------------
-# IMPORT DATA
-# -----------------------------------------------
-st.markdown(
-    '<h3 style="color:white; background-color:#FA5E3C; font-size:150%; letter-spacing:0.5px; padding: 4px;"><b>Import Data</b></h3>',
-    unsafe_allow_html=True
-)
-
+# Baca data
 kpm = pd.read_excel("KPM.xlsx")
-miskin = pd.read_excel("Persentase Penduduk Miskin.xlsx")
-keluhan = pd.read_excel("Persentase Penduduk yang Mempunyai Keluhan Kesehatan Selama Sebulan Terakhir.xlsx")
-sanitasi = pd.read_excel("Persentase Rumah Tangga yang Memiliki Akses Terhadap Sumber Air Minum Layak.xlsx")
-minum = pd.read_excel("Persentase Rumah Tangga yang Memiliki Akses Terhadap Sumber Air Minum Layak.xlsx")
-sekolah = pd.read_excel("Sekolah.xlsx")
-kerja = pd.read_excel("Tingkat Partisipasi Angkatan Kerja (TPAK).xlsx")
-nganggur = pd.read_excel("Tingkat Pengangguran Terbuka (TPT) Penduduk Umur 15 Tahun Keatas Manurut Kab_Kota.xlsx")
+Miskin = pd.read_excel("Persentase Penduduk Miskin.xlsx")
+Keluhan = pd.read_excel("Persentase Penduduk yang Mempunyai Keluhan Kesehatan Selama Sebulan Terakhir.xlsx")
+Sanitasi = pd.read_excel("Persentase Rumah Tangga yang Memiliki Akses Terhadap Sumber Air Minum Layak.xlsx")
+Minum = pd.read_excel("Persentase Rumah Tangga yang Memiliki Akses Terhadap Sumber Air Minum Layak.xlsx")
+Sekolah = pd.read_excel("Sekolah.xlsx")
+Kerja = pd.read_excel("Tingkat Partisipasi Angkatan Kerja (TPAK).xlsx")
+Nganggur = pd.read_excel("Tingkat Pengangguran Terbuka (TPT) Penduduk Umur 15 Tahun Keatas Manurut Kab_Kota.xlsx")
 
-# -----------------------------------------------
-# PREPROCESSING
-# -----------------------------------------------
-st.markdown(
-    '<h3 style="color:white; background-color:#FA5E3C; font-size:150%; letter-spacing:0.5px; padding: 4px;"><b>Data Preprocessing</b></h3>',
-    unsafe_allow_html=True
-)
 
-kpm = kpm.rename(columns={'JumlahKeluargaPenerimaManfaat(KPM)': 'KPM'})
+# Data preprocessing tiap dataset
+kpm = kpm.rename(columns={'JumlahKeluargaPenerimaManfaat(KPM)':'KPM'})
 
-# Bersihkan data dan ambil kolom tahun 2021
-def bersihkan_data(df, tahun, nama_baru):
-    df = df.drop(columns=[col for col in df.columns if col != 'Kabupaten Kota' and col != tahun])
-    df = df.rename(columns={tahun: nama_baru})
-    df = df[~df['Kabupaten Kota'].str.contains('Sumatera Utara', na=False)]
-    df = df.iloc[:-4, :]  # buang baris bawah (total/provinsi)
-    return df
+Miskin = Miskin.iloc[:, :-2].iloc[:-4,:]
+Miskin = Miskin.rename(columns={'2021':'Miskin'})
+Miskin = Miskin.drop(Miskin[Miskin['Kabupaten Kota'] == 'Sumatera Utara'].index)
 
-miskin = bersihkan_data(miskin, '2021', 'Miskin')
-keluhan = bersihkan_data(keluhan, '2021', 'Keluhan')
-sanitasi = bersihkan_data(sanitasi, '2021', 'Sanitasi')
-minum = bersihkan_data(minum, '2021', 'Minum')
-kerja = bersihkan_data(kerja, '2021', 'Kerja')
-nganggur = bersihkan_data(nganggur, '2021', 'Nganggur')
+Sanitasi = Sanitasi.drop(columns=['2019', '2020']).iloc[:-4,:]
+Sanitasi = Sanitasi.rename(columns={'2021':'Sanitasi'})
+Sanitasi = Sanitasi.drop(Sanitasi[Sanitasi['Kabupaten Kota'] == 'Sumatera Utara'].index)
 
-# Format Nama Kabupaten
-kerja["Kabupaten Kota"] = kerja["Kabupaten Kota"].apply(lambda x: ' '.join(word.capitalize() for word in x.split()))
-nganggur["Kabupaten Kota"] = nganggur["Kabupaten Kota"].apply(lambda x: ' '.join(word.capitalize() for word in x.split()))
-kpm["Kabupaten Kota"] = kpm["Kabupaten Kota"].apply(lambda x: ' '.join(word.capitalize() for word in x.split()))
+Minum = Minum.drop(columns=['2019', '2020']).iloc[:-4,:]
+Minum = Minum.rename(columns={'2021':'Minum'})
+Minum = Minum.drop(Minum[Minum['Kabupaten Kota'] == 'Sumatera Utara'].index)
 
-# Gabungkan semua data
-data = kpm.merge(sanitasi, on='Kabupaten Kota') \
-          .merge(minum, on='Kabupaten Kota') \
-          .merge(keluhan, on='Kabupaten Kota') \
-          .merge(miskin, on='Kabupaten Kota') \
-          .merge(kerja, on='Kabupaten Kota') \
-          .merge(sekolah, on='Kabupaten Kota') \
-          .merge(nganggur, on='Kabupaten Kota')
+Keluhan = Keluhan.drop(columns=['2019', '2020']).iloc[:-4,:]
+Keluhan = Keluhan.rename(columns={'2021':'Keluhan'})
+Keluhan = Keluhan.drop(Keluhan[Keluhan['Kabupaten Kota'] == 'Sumatera Utara'].index)
 
-st.write("✅ Data berhasil digabung.")
-st.dataframe(data)
+Kerja = Kerja.drop(columns=['2022', '2023']).iloc[:-4,:]
+Kerja = Kerja.rename(columns={'2021':'Kerja'})
+Kerja = Kerja.drop(Kerja[Kerja['Kabupaten Kota'] == 'Sumatera Utara'].index)
+Kerja["Kabupaten Kota"] = Kerja["Kabupaten Kota"].apply(lambda x: ' '.join(word.capitalize() for word in x.split()))
+
+Nganggur = Nganggur.drop(columns=['2023', '2022']).iloc[:-4,:]
+Nganggur = Nganggur.rename(columns={'2021':'Nganggur'})
+Nganggur = Nganggur.drop(Nganggur[Nganggur['Kabupaten Kota'] == 'Sumatera Utara'].index)
+
+
+# Merge semua data
+data = kpm.merge(Sanitasi)
+data = data.merge(Minum)
+data = data.merge(Keluhan)
+data = data.merge(Miskin)
+data = data.merge(Kerja)
+data = data.merge(Sekolah)
+data = data.merge(Nganggur)
+print("Data gabungan:")
+print(data.head())
 
 # Cek missing value
-if data.isnull().sum().sum() == 0:
-    st.markdown("✅ **Tidak ada missing value.**")
-else:
-    st.markdown("⚠️ **Ada data yang hilang.**")
+print("Missing values di tiap baris:")
+print(data[data.isnull().any(axis=1)])
 
-# -----------------------------------------------
-# EDA
-# -----------------------------------------------
-st.subheader("Exploratory Data Analysis")
+# Deskriptif statistik
+print(data.describe().T)
 
+# Cek tipe data
+print(data.dtypes)
+
+
+# ===== 3. EDA =====
+
+# Data diskrit dan kontinyu
 diskrit = data.iloc[:, [1, 7, 8]]
 continues = data.iloc[:, [2, 3, 4, 5, 6, 9]]
 
-# Histogram Diskrit
-st.markdown("**Distribusi Fitur Diskrit**")
-fig1 = plt.figure(figsize=(15, 5))
+# Visualisasi distribusi diskrit
+fig=plt.figure(figsize=(15,14))
 for i, f in enumerate(diskrit):
-    plt.subplot(1, 3, i + 1)
-    sns.histplot(x=diskrit[f])
-    plt.title(f)
-st.pyplot(fig1)
+    plt.subplot(6, 3, i+1)
+    sns.histplot(x=data[f])
+    plt.title(f'Feature: {f}')
+    plt.xlabel('')
+fig.suptitle('Diskrit feature distributions',  size=20)
+fig.tight_layout()
+plt.show()
 
-# Histogram Continues
-st.markdown("**Distribusi Fitur Kontinu**")
-fig2 = plt.figure(figsize=(15, 10))
+# Visualisasi distribusi kontinu
+fig=plt.figure(figsize=(15,14))
 for i, f in enumerate(continues):
-    plt.subplot(2, 3, i + 1)
-    sns.histplot(x=continues[f])
-    plt.title(f)
-st.pyplot(fig2)
+    plt.subplot(6, 6, i+1)
+    sns.histplot(x=data[f])
+    plt.title(f'Feature: {f}')
+    plt.xlabel('')
+fig.suptitle('Continuous feature distributions',  size=20)
+fig.tight_layout()
+plt.show()
 
-# Correlation Matrix
-st.markdown("**Matriks Korelasi**")
-def correlation_matrix(df, x=7, y=7):
-    corr = df.corr()
-    mask = np.triu(np.ones_like(corr))
+# Korelasi matrix
+data_test = data.iloc[:, 1:]
+def correlation_matrix(dataframe, x, y):
+    corr = dataframe.corr()
     f, ax = plt.subplots(figsize=(x, y))
-    sns.heatmap(corr, annot=True, mask=mask, cmap="Reds")
-    st.pyplot(f)
+    mask = np.triu(np.ones_like(corr))
+    sns.heatmap(corr, annot=True, mask = mask, cmap="Reds")
+    return ax
+correlation_matrix(data_test, 7, 7)
+plt.show()
 
-correlation_matrix(data.iloc[:, 1:])
 
-# -----------------------------------------------
-# SHAPIRO-WILK NORMALITY TEST
-# -----------------------------------------------
-st.subheader("Uji Normalitas Shapiro-Wilk")
+# ===== 4. Uji Hipotesis =====
 
-hasil_normalitas = []
-for col in data.columns[1:]:
-    stat, p = shapiro(data[col])
-    hasil = "Diterima (Normal)" if p > 0.05 else "Ditolak (Tidak Normal)"
-    hasil_normalitas.append((col, p, hasil))
+# Uji Shapiro-Wilk (normalitas) untuk seluruh data sekaligus
+stat, p = shapiro(data_test)
+print('Statistics=%.3f, p=%.3f' % (stat, p))
+alpha = 0.05
+if p > alpha:
+    print('Sample looks Gaussian (fail to reject H0)')
+else:
+    print('Sample does not look Gaussian (reject H0)')
 
-shapiro_df = pd.DataFrame(hasil_normalitas, columns=["Fitur", "p-value", "Kesimpulan"])
-st.dataframe(shapiro_df)
+# Uji normalitas per fitur
+for col in data_test.columns:
+    stat, p = shapiro(data_test[col])
+    if p > alpha:
+        result = colored('Accepted', 'green')
+    else:
+        result = colored('Rejected','red')
+    print(f'Feature: {col}\t Hypothesis: {result}')
 
-# -----------------------------------------------
-# ELBOW METHOD
-# -----------------------------------------------
-st.subheader("Menentukan Jumlah Kluster dengan Elbow Method")
+# Uji Poisson untuk data diskrit
+for col in diskrit.columns:
+    n = len(data[col])
+    df = n-1
+    mu = data[col].mean()
+    D = ((data[col]-mu)**2).sum()/mu
+    q_lower = alpha/2
+    q_upper = 1 - alpha/2
+    chi2_crit_lower = chi2.ppf(q_lower, df)
+    chi2_crit_upper = chi2.ppf(q_upper, df)
+    if (D < chi2_crit_lower) or (D > chi2_crit_upper):
+        result = colored('Rejected', 'red')
+    else:
+        result = colored('Accepted', 'green')
+    print(f'Feature: {col}\t Hypothesis: {result}')
 
-scaled_data = StandardScaler().fit_transform(data.iloc[:, 1:])
+# Normal Q-Q plots untuk tiap fitur kontinyu
+figure = plt.figure(figsize = (16,12))
+for i in range(len(data_test.columns)):
+    ax = plt.subplot(6,5, i+1)
+    stats.probplot(data_test.iloc[:,i], dist='norm', plot=plt)
+    ax.get_lines()[0].set_markersize(6.0)
+    plt.title(data_test.columns[i])
+plt.tight_layout()
+plt.show()
 
-def plot_elbow(X, max_k=10):
-    sse = []
-    for k in range(1, max_k+1):
-        kmeans = KMeans(n_clusters=k, random_state=42)
-        kmeans.fit(X)
-        sse.append(kmeans.inertia_)
-    fig, ax = plt.subplots()
-    ax.plot(range(1, max_k+1), sse, marker='o')
-    ax.set_xlabel('Jumlah Kluster (k)')
-    ax.set_ylabel('SSE')
-    ax.set_title('Metode Elbow')
-    st.pyplot(fig)
 
-plot_elbow(scaled_data)
+# ===== 5. PREPROCESSING UNTUK CLUSTERING =====
 
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
 
-# Salin data untuk klasterisasi
-data_cluster = all_data_cleaned.drop(columns=['Kabupaten/Kota'])
+# Pilih fitur numerik yang akan di-cluster (kecuali nama daerah dan variabel target jika ada)
+features = data.iloc[:, 1:]  # ambil semua kolom kecuali nama daerah
 
 # Standarisasi data
 scaler = StandardScaler()
-data_scaled = scaler.fit_transform(data_cluster)
+features_scaled = scaler.fit_transform(features)
 
-# Inisialisasi dan fit KMeans
-k = 4  # Jumlah kluster dari hasil elbow
-kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
-kmeans.fit(data_scaled)
+print("Data berhasil diskalakan.")
 
-# Tambahkan hasil klaster ke dataframe
-all_data_cleaned['Klaster'] = kmeans.labels_
+
+# ===== 6. MENENTUKAN JUMLAH CLUSTER OPTIMAL =====
+
+from yellowbrick.cluster import KElbowVisualizer
+from sklearn.cluster import KMeans
+
+model = KMeans(random_state=42)
+visualizer = KElbowVisualizer(model, k=(2,10))
+visualizer.fit(features_scaled)
+visualizer.show()
+
+print(f"Jumlah cluster optimal menurut Elbow Method adalah: {visualizer.elbow_value_}")
+
+
+# ===== 7. CLUSTERING MENGGUNAKAN K-MEANS =====
+
+# Misal jumlah cluster optimal = 4 (ganti sesuai hasil elbow)
+k_optimal = visualizer.elbow_value_
+
+kmeans = KMeans(n_clusters=k_optimal, random_state=42)
+clusters = kmeans.fit_predict(features_scaled)
+
+# Tambahkan hasil cluster ke data asli
+data['Cluster'] = clusters
+
+print(data[['Kabupaten Kota', 'Cluster']].head())
+
+
+# ===== 8. VISUALISASI HASIL CLUSTERING =====
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.decomposition import PCA
 
-# Reduksi dimensi agar bisa divisualisasikan (PCA ke 2 dimensi)
-pca = PCA(n_components=2)
-data_pca = pca.fit_transform(data_scaled)
-
-# Buat DataFrame untuk visualisasi
-df_vis = pd.DataFrame(data_pca, columns=['PC1', 'PC2'])
-df_vis['Klaster'] = kmeans.labels_
-df_vis['Kabupaten/Kota'] = all_data_cleaned['Kabupaten/Kota']
-
-# Plot
-plt.figure(figsize=(10, 6))
-sns.scatterplot(data=df_vis, x='PC1', y='PC2', hue='Klaster', palette='Set2', s=100)
-for i in range(df_vis.shape[0]):
-    plt.text(df_vis['PC1'][i]+0.1, df_vis['PC2'][i], df_vis['Kabupaten/Kota'][i], fontsize=9)
-plt.title('Visualisasi Klasterisasi Kabupaten/Kota')
-plt.legend(title='Klaster')
-plt.grid(True)
+# Plot scatter 2D menggunakan 2 fitur utama (misal 2 fitur pertama)
+plt.figure(figsize=(10,6))
+sns.scatterplot(
+    x=features.iloc[:,0], 
+    y=features.iloc[:,1], 
+    hue=data['Cluster'], 
+    palette='Set2',
+    s=100
+)
+plt.title('Visualisasi Cluster berdasarkan 2 fitur pertama')
+plt.xlabel(features.columns[0])
+plt.ylabel(features.columns[1])
+plt.legend(title='Cluster')
 plt.show()
 
-# Simpan ke file Excel
-all_data_cleaned.to_excel("Hasil_Klasterisasi_KabupatenKota.xlsx", index=False)
-print("Hasil klasterisasi berhasil disimpan ke 'Hasil_Klasterisasi_KabupatenKota.xlsx'")
+# Atau bisa juga pakai PCA untuk visualisasi 2D dari data multi-dimensi
+from sklearn.decomposition import PCA
+
+pca = PCA(n_components=2)
+components = pca.fit_transform(features_scaled)
+
+plt.figure(figsize=(10,6))
+sns.scatterplot(
+    x=components[:,0], 
+    y=components[:,1], 
+    hue=data['Cluster'], 
+    palette='Set2',
+    s=100
+)
+plt.title('Visualisasi Cluster dengan PCA 2 Komponen')
+plt.xlabel('PCA 1')
+plt.ylabel('PCA 2')
+plt.legend(title='Cluster')
+plt.show()
 
 
+# ===== 5. PREPROCESSING UNTUK CLUSTERING =====
+
+from sklearn.preprocessing import StandardScaler
+
+# Pilih fitur numerik yang akan di-cluster (kecuali nama daerah dan variabel target jika ada)
+features = data.iloc[:, 1:]  # ambil semua kolom kecuali nama daerah
+
+# Standarisasi data
+scaler = StandardScaler()
+features_scaled = scaler.fit_transform(features)
+
+print("Data berhasil diskalakan.")
 
 
+# ===== 6. MENENTUKAN JUMLAH CLUSTER OPTIMAL =====
+
+from yellowbrick.cluster import KElbowVisualizer
+from sklearn.cluster import KMeans
+
+model = KMeans(random_state=42)
+visualizer = KElbowVisualizer(model, k=(2,10))
+visualizer.fit(features_scaled)
+visualizer.show()
+
+print(f"Jumlah cluster optimal menurut Elbow Method adalah: {visualizer.elbow_value_}")
+
+
+# ===== 7. CLUSTERING MENGGUNAKAN K-MEANS =====
+
+# Misal jumlah cluster optimal = 4 (ganti sesuai hasil elbow)
+k_optimal = visualizer.elbow_value_
+
+kmeans = KMeans(n_clusters=k_optimal, random_state=42)
+clusters = kmeans.fit_predict(features_scaled)
+
+# Tambahkan hasil cluster ke data asli
+data['Cluster'] = clusters
+
+print(data[['Kabupaten Kota', 'Cluster']].head())
+
+
+# ===== 8. VISUALISASI HASIL CLUSTERING =====
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Plot scatter 2D menggunakan 2 fitur utama (misal 2 fitur pertama)
+plt.figure(figsize=(10,6))
+sns.scatterplot(
+    x=features.iloc[:,0], 
+    y=features.iloc[:,1], 
+    hue=data['Cluster'], 
+    palette='Set2',
+    s=100
+)
+plt.title('Visualisasi Cluster berdasarkan 2 fitur pertama')
+plt.xlabel(features.columns[0])
+plt.ylabel(features.columns[1])
+plt.legend(title='Cluster')
+plt.show()
+
+# Atau bisa juga pakai PCA untuk visualisasi 2D dari data multi-dimensi
+from sklearn.decomposition import PCA
+
+pca = PCA(n_components=2)
+components = pca.fit_transform(features_scaled)
+
+plt.figure(figsize=(10,6))
+sns.scatterplot(
+    x=components[:,0], 
+    y=components[:,1], 
+    hue=data['Cluster'], 
+    palette='Set2',
+    s=100
+)
+plt.title('Visualisasi Cluster dengan PCA 2 Komponen')
+plt.xlabel('PCA 1')
+plt.ylabel('PCA 2')
+plt.legend(title='Cluster')
+plt.show()
+
+# ===== 9. ANALISIS KARAKTERISTIK TIAP CLUSTER =====
+
+# Melihat rata-rata nilai setiap fitur di tiap cluster
+cluster_summary = data.groupby('Cluster').mean().reset_index()
+
+print("Rata-rata nilai fitur per cluster:")
+print(cluster_summary)
+
+# Kalau mau, tampilkan juga jumlah data tiap cluster
+print("\nJumlah data per cluster:")
+print(data['Cluster'].value_counts())
+
+# Visualisasi perbandingan rata-rata fitur tiap cluster (bar plot)
+plt.figure(figsize=(12,8))
+sns.barplot(data=cluster_summary.melt(id_vars='Cluster'), 
+            x='variable', y='value', hue='Cluster')
+plt.title('Rata-rata Nilai Fitur per Cluster')
+plt.xticks(rotation=45)
+plt.show()
