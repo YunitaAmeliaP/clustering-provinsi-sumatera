@@ -11,10 +11,11 @@ import streamlit as st
 
 st.image("https://perkim.id/wp-content/uploads/2020/06/sumut-scaled.jpg", caption="Gambar Sumatera Utara")
 
-
+st.markdown("""
 - Berapa banyak kluster yang perlu kita pakai?
-- Apa model terbaik untuk klusterisasi antar provinsi?
-- Klasterisasi provinsi untuk ..
+- Bagaimana cara mengelompokkan data dengan baik?
+""")
+
 
 # impor barang dari luar negeri
 
