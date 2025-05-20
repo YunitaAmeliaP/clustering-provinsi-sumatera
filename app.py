@@ -274,8 +274,6 @@ np.transpose(outliers_features)
 
 ### Metode Z-Score
 
-**Interpretasi Z-Score:**
-
 def Zscore_outlier(df):
     out=[]
     m = np.mean(df)
