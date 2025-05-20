@@ -6,6 +6,7 @@ plotly
 scipy
 termcolor
 scikit-learn
-yellowbrick==1.4
+yellowbrick==1.5.1
 streamlit
 kagglehub
+openpyxl
