@@ -7,13 +7,10 @@ print("Dataset berhasil diunduh.")
 
 # 1. Pendahuluan
 
-![](https://perkim.id/wp-content/uploads/2020/06/sumut-scaled.jpg)
+import streamlit as st
 
-<div style="color:white;display:fill;
-            background-color:#FA5E3C;font-size:150%;
-            letter-spacing:0.5px">
-    <p style="padding: 4px;color:white;"><b>Tujuan</b></p>
-</div>
+st.image("https://perkim.id/wp-content/uploads/2020/06/sumut-scaled.jpg", caption="Gambar Sumatera Utara")
+
 
 - Berapa banyak kluster yang perlu kita pakai?
 - Apa model terbaik untuk klusterisasi antar provinsi?
