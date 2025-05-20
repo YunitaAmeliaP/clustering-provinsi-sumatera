@@ -120,8 +120,7 @@ st.markdown("✅ **Kerja bagus :** Ngga ada missing value cuy")
 data.describe().T.style.background_gradient(cmap='Blues')
 
 data.dtypes
-
-Terdapat 3 data diskrit dan 6 data continue
+st.write("Terdapat 3 data diskrit dan 6 data continue")
 
 # 3. EDA
 
