@@ -8,3 +8,4 @@ termcolor
 scikit-learn
 yellowbrick
 streamlit
+kagglehub
