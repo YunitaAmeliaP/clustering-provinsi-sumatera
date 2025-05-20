@@ -45,8 +45,11 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 # 2. Data
+st.markdown(
+    '<h3 style="color:white; background-color:#FA5E3C; font-size:150%; letter-spacing:0.5px; padding: 4px;"><b>Import Data</b></h3>',
+    unsafe_allow_html=True
+)
 
-<h3 style="color:white; background-color:#FA5E3C; font-size:150%; letter-spacing:0.5px; padding: 4px;"><b>Import Data</b></h3>
 
 # Baca data
 
