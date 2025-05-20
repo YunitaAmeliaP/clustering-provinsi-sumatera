@@ -89,9 +89,8 @@ Nganggur = Nganggur.drop(columns=['2023', '2022']).iloc[:-4,:]
 Nganggur = Nganggur.rename(columns={'2021':'Nganggur'})
 Kerja = Kerja.drop(Kerja[Kerja['Kabupaten Kota'] == 'Sumatera Utara'].index)
 
-<div style="border-radius: 10px; border: #00d65c solid; padding: 15px; background-color: #ffffff00; font-size: 100%; text-align: left;">
-    <b>✅ Kerja bagus :</b> Setelah processing data, tahap selanjutnya tinggal dimerge lalu diclustering
-</div>
+st.markdown("**Kerja bagus :** Setelah processing data, tahap selanjutnya tinggal dimerge lalu diclustering")
+
 
 #nggabungin data cuy
 
