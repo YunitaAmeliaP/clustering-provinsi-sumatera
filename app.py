@@ -8,6 +8,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import warnings
+
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 st.set_page_config(page_title="Clustering Analysis Sumatera Utara", layout="wide")
@@ -172,7 +173,7 @@ inertia = []
 K = range(1, 11)
 for k in K:
     kmeans = KMeans(n_clusters=k, random_state=42)
-    kmeans.fit(data_scaled)
+    kmeans.fit(data_scaled)  # PENTING: pakai data_scaled, bukan X
     inertia.append(kmeans.inertia_)
 
 fig_elbow, ax_elbow = plt.subplots()
