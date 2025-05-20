@@ -171,9 +171,6 @@ correlation_matrix(data_test, 7, 7)
 
 ## **Uji Shapiro-Wilk**
 st.write("(Diambil dari [Francisco Javier Gallego & Torch me](https://www.kaggle.com/code/javigallego/outliers-eda-clustering-tutorial))")
-Uji ini digunakan untuk menguji apakah sebuah kumpulan data didistribusikan **secara normal** atau tidak. Hipotesis nolnya adalah bahwa sampel $$x_1\hspace{0.1cm},\hspace{0.1cm}\cdots\hspace{0.1cm},\hspace{0.1cm}x_n$$ berasal dari populasi yang terdistribusi secara normal. Uji ini diterbitkan pada tahun 1965 oleh Samuel Shapiro dan Martin Wilk dan **dianggap sebagai salah satu uji paling kuat untuk pengujian normalitas.** Statistik uji adalah
-
-$$W = \frac{(\sum_{i=1}^{n}a_{i}x_i)^2}{\sum_{i=1}^{n}(x_i - \bar{x})^2}$$
 
 # normality test
 stat, p = shapiro(data_test)
@@ -196,27 +193,6 @@ for col in data_test.columns:
     print('Feature: {}\t Hypothesis: {}'.format(col, result))
 
 ## **Uji Penyebaran Poisson**
-
-Uji ini digunakan untuk menentukan apakah sebuah fitur terdistribusi sesuai dengan distribusi **Poisson** atau tidak. Hipotesis nolnya adalah bahwa
-
-$$
-X_i \sim Po(\lambda) \quad \text{untuk setiap i=1, $\ldots$, n}
-$$
-
-Ini adalah **uji yang paling umum** digunakan untuk memverifikasi distribusi Poisson. Statistik uji (yang disebut penyebaran) adalah
-
-$$
-D = \sum_{i=1}^{n} \frac{(X_i - \bar{X})^2}{\bar{X}},
-$$
-
-dimana
-
-* $X_i$ adalah angka dari titik sampel ke-i (urutan tidak penting)
-* $\bar{X}$ adalah rata-rata sampel.
-
-Perhatikan bahwa **nilai harapan** dari statistik ini adalah $\mathbb{E}(D) = \frac{(n-1) Var(X_i)}{E(X_i)} = \frac{(n-1) \lambda}{\lambda}  = n-1$, karena rata-rata dan varians dari distribusi Poisson adalah tingkat $\lambda$. Jika $D$ terlalu '**jauh dari**' nilai yang diharapkan $n-1$, maka kita **menolak** hipotesis nol.
-
-Lebih secara formal, $D$ memiliki distribusi **chi-squared** dengan $n-1$ **derajat kebebasan** di bawah hipotesis nol. Kita menentukan **nilai kritis** dengan menggunakan **uji dua-ekor** dengan tingkat signifikansi $\alpha=5\%$.
 
 # Univariate poisson test
 for col in diskrit.columns:
@@ -264,29 +240,8 @@ plt.suptitle('Normal Q-Q Charts', y=1.02, fontsize=20)
 plt.show()
 
 # 5. Outlier Detection
-
-<h2 style="color:white; display:fill; background-color:#FA5E3C; font-size:150%; letter-spacing:0.5px; padding: 4px;"><b>Univariate Outlier </b></h2>
-
 ### Uji Grubbs
 
-Uji Grubbs didefinisikan untuk hipotesis sebagai berikut:
-
-- **Ho:** Tidak ada outlier dalam kumpulan data.
-- **H1:** Tepat ada satu outlier dalam kumpulan data.
-
-Statistik uji Grubbs didefinisikan sebagai berikut:
-
-$$
-G_{\text{hitung}}=\frac{\max \left|X_{i}-\overline{X}\right|}{SD}
-$$
-
-dengan $\overline{X}$ dan $SD$ menyatakan rata-rata sampel dan deviasi standar, masing-masing.
-
-$$
-G_{\text{kritis}}=\frac{(N-1)}{\sqrt{N}} \sqrt{\frac{\left(t_{\alpha /(2 N), N-2}\right)^{2}}{N-2+\left(t_{\alpha /(2 N), N-2}\right)^{2}}}
-$$
-
-Jika nilai yang dihitung lebih besar dari nilai kritis, Anda dapat menolak hipotesis nol dan menyimpulkan bahwa salah satu nilai merupakan outlier.
 
 import scipy.stats as stats
 
