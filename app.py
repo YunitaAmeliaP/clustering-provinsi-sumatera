@@ -20,12 +20,20 @@ from sklearn.cluster import KMeans
 
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
 
+# Pilih kolom fitur yang mau dipakai clustering, misalnya kolom 'feature1' dan 'feature2'
+X = df[['feature1', 'feature2']].values  # numpy array untuk fitting
+
+# Buat list untuk nyimpen nilai inertia (jumlah jarak kuadrat dalam cluster)
 inertia = []
 k_range = range(1, 11)
+
 for k in k_range:
     kmeans = KMeans(n_clusters=k, random_state=42)
-    kmeans.fit(X)  # X = data fitur kamu
+    kmeans.fit(X)
     inertia.append(kmeans.inertia_)
 
 plt.plot(k_range, inertia, marker='o')
