@@ -170,21 +170,10 @@ correlation_matrix(data_test, 7, 7)
 # 4. Hypothesis testing
 
 ## **Uji Shapiro-Wilk**
-(Diambil dari [Francisco Javier Gallego & Torch me](https://www.kaggle.com/code/javigallego/outliers-eda-clustering-tutorial))
-
+st.write("(Diambil dari [Francisco Javier Gallego & Torch me](https://www.kaggle.com/code/javigallego/outliers-eda-clustering-tutorial))")
 Uji ini digunakan untuk menguji apakah sebuah kumpulan data didistribusikan **secara normal** atau tidak. Hipotesis nolnya adalah bahwa sampel $$x_1\hspace{0.1cm},\hspace{0.1cm}\cdots\hspace{0.1cm},\hspace{0.1cm}x_n$$ berasal dari populasi yang terdistribusi secara normal. Uji ini diterbitkan pada tahun 1965 oleh Samuel Shapiro dan Martin Wilk dan **dianggap sebagai salah satu uji paling kuat untuk pengujian normalitas.** Statistik uji adalah
 
 $$W = \frac{(\sum_{i=1}^{n}a_{i}x_i)^2}{\sum_{i=1}^{n}(x_i - \bar{x})^2}$$
-
-dimana
-
-* $x_i$ adalah angka dari titik data ke-i (dimana sampel diurutkan dari yang terkecil hingga yang terbesar).
-* $\bar{x}$ adalah rata-rata sampel.
-* Variabel $a_i$ dihitung melalui
-
-$$(a_1, ... , a_n) = \frac{m^T V^{-1}}{(m^T V^{-1}V^{-1}m)^{1/2}} \hspace{2cm}m = (m_1 , ... , m_n)$$
-
-dimana $m_1 , ... , m_n$ adalah nilai rata-rata dari statistik yang diurutkan, dari variabel acak yang independen dan identik didistribusikan, yang diambil dari distribusi normal dan $V$ menyatakan matriks kovarian dari statistik tersebut. **Hipotesis nol ditolak jika W terlalu kecil. Nilai W dapat berkisar dari 0 hingga 1.**
 
 # normality test
 stat, p = shapiro(data_test)
