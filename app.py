@@ -62,7 +62,11 @@ Sekolah = pd.read_excel("Sekolah.xlsx")
 Kerja = pd.read_excel("Tingkat Partisipasi Angkatan Kerja (TPAK).xlsx")
 Nganggur = pd.read_excel("Tingkat Pengangguran Terbuka (TPT) Penduduk Umur 15 Tahun Keatas Manurut Kab_Kota.xlsx")
 
-<h3 style="color:white; background-color:#FA5E3C; font-size:150%; letter-spacing:0.5px; padding: 4px;"><b>Data preprocessing</b></h3>
+st.markdown(
+    '<h3 style="color:white; background-color:#FA5E3C; font-size:150%; letter-spacing:0.5px; padding: 4px;"><b>Data preprocessing</b></h3>',
+    unsafe_allow_html=True
+)
+
 
 # Data preprocessing tiap dataset
 
