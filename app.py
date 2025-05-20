@@ -27,6 +27,7 @@ import seaborn as sns
 import plotly.express as px
 from scipy import stats
 from scipy.stats import pearsonr
+from yellowbrick.cluster import KElbowVisualizer
 from scipy.stats import shapiro
 from scipy.stats import chi2
 from scipy.stats import poisson
