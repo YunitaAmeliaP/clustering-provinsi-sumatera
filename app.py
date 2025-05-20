@@ -1,17 +1,8 @@
-# IMPORTANT: RUN THIS CELL IN ORDER TO IMPORT YOUR KAGGLE DATA SOURCES,
-# THEN FEEL FREE TO DELETE THIS CELL.
-# NOTE: THIS NOTEBOOK ENVIRONMENT DIFFERS FROM KAGGLE'S PYTHON
-# ENVIRONMENT SO THERE MAY BE MISSING LIBRARIES USED BY YOUR
-# NOTEBOOK.
 import kagglehub
-wahyuikbalmaulana_dataset_provinsi_sumatera_utara_path = kagglehub.dataset_download('wahyuikbalmaulana/dataset-provinsi-sumatera-utara')
 
-print('Data source import complete.')
-
-
-<p style='text-align: center; background-color:#FA5E3C; color: black; padding: 20px; border: 2px solid black; font-weight: bold; font-size: 24px;' >
-    Clustering Analysis
-</p>
+# Download dataset dari Kaggle
+dataset_path = kagglehub.dataset_download('wahyuikbalmaulana/dataset-provinsi-sumatera-utara')
+print("Dataset berhasil diunduh.")
 
 
 # 1. Pendahuluan
