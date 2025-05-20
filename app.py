@@ -107,9 +107,7 @@ data
 
 data[data.isnull().any(axis=1)]
 
-<div style="border-radius: 10px; border: #00d65c solid; padding: 15px; background-color: #ffffff00; font-size: 100%; text-align: left;">
-    <b>✅ Kerja bagus :</b> Ngga ada missing value cuy
-</div>
+st.markdown("✅ **Kerja bagus :** Ngga ada missing value cuy")
 
 data.describe().T.style.background_gradient(cmap='Blues')
 
