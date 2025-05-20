@@ -274,33 +274,7 @@ np.transpose(outliers_features)
 
 ### Metode Z-Score
 
-Metode Z-Score digunakan untuk mengetahui berapa banyak deviasi standar (standar deviasi) suatu nilai data dari rata-rata (mean).
-
-
-![minipic](https://i.pinimg.com/originals/cd/14/73/cd1473c4c82980c6596ea9f535a7f41c.jpg)
-
-
-**Gambar di sebelah kiri menunjukkan luas di bawah kurva normal dan berapa banyak luas yang dicakup oleh deviasi standar.**
-
-* **68%** dari titik data terletak di antara **+ atau - 1 deviasi standar** dari rata-rata.
-* **95%** dari titik data terletak di antara **+ atau - 2 deviasi standar** dari rata-rata.
-* **99,7%** dari titik data terletak di antara **+ atau - 3 deviasi standar** dari rata-rata.
-
-**Rumus untuk menghitung Z-Score:**
-
-$\begin{array}{l} {R.Z.score=\frac{0.6745*( X_{i} - Median)}{MAD}} \end{array}$
-
-Keterangan:
-
-* RZ = Z-Score terstandar (biasanya dibulatkan ke 4 desimal)
-* X_i = Nilai data individu
-* Median = Nilai tengah dari kumpulan data yang diurutkan
-* MAD = Median Absolute Deviation (Deviasi Absolut Median) - yaitu median dari selisih absolut antara setiap titik data dengan median
-
 **Interpretasi Z-Score:**
-
-* Jika Z-Score suatu titik data lebih dari 3 (karena mencakup 99,7% luas), ini menunjukkan bahwa nilai data tersebut cukup berbeda dari nilai lainnya. Nilai tersebut dapat dianggap sebagai outlier (nilai pencilan).
-
 
 def Zscore_outlier(df):
     out=[]
@@ -340,28 +314,7 @@ for i, column in enumerate(data_test[outliers_features].columns):
     axs[i].legend()
     axs[i].set_title(column)
 
-<h2 style="color:white; display:fill; background-color:#FA5E3C; font-size:150%; letter-spacing:0.5px; padding: 4px;"><b>Multivariate Outlier </b></h2>
-
-adsasgekgjsdkfjgnsdf
-
 # 6. Cluster Modelling
-
-<h2 style="color:white; display:fill; background-color:#FA5E3C; font-size:150%; letter-spacing:0.5px; padding: 4px;"><b>Scalling </b></h2>
-
-Selalu penting untuk menyeimbangkan data untuk masalah pengelompokan agar lebih mudah membandingkan jarak antara titik data.
-
-<center>
-<img src="https://149695847.v2.pressablecdn.com/wp-content/uploads/2021/09/image-47.png" width="400">
-</center>
-
-Ada beberapa cara untuk melakukannya, misalnya:
-
-* *StandardScaler*: menyeimbangkan setiap kolom secara independen sehingga memiliki rata-rata 0 dan standar deviasi 1, dengan mengurangkan oleh **rata-rata** kolom dan membaginya dengan **standar deviasi** kolom.
-* *RobustScaler*: melakukan hal yang sama seperti di atas tetapi menggunakan statistik yang **tahan outlier**, yaitu mengurangkan oleh **median** dan membaginya dengan **rentang interkuartil**.
-* *PowerTransformer*: membuat kolom menjadi lebih seperti distribusi gaussian dengan **menstabilkan varians** dan **meminimalkan skewness**.
-
-miskin+keluhan kesehatan+pengangguran = tinggi
-sanitasi minum=rendah
 
 Provinsi = data.iloc[:, 0]
 Atribut = data.iloc[:, 1:]
@@ -372,14 +325,10 @@ Atribut_std = pd.DataFrame(StandardScaler().fit_transform(Atribut))
 
 Atribut_std.columns = data_test.columns
 
-<h2 style="color:white; display:fill; background-color:#FA5E3C; font-size:150%; letter-spacing:0.5px; padding: 4px;"><b>PCA (Optional)</b></h2>
-
 pca = PCA(n_components = 2,random_state = 42)
 pca_data= pd.DataFrame(pca.fit_transform(Atribut_std), columns=(["PCA1","PCA2"]))
 pca_provinsi = pd.concat([Provinsi, pca_data], axis=1)
 pca_provinsi
-
-<h2 style="color:white; display:fill; background-color:#FA5E3C; font-size:150%; letter-spacing:0.5px; padding: 4px;"><b>Clustering Algorithms: DBSCAN (Banyak outlier jir)</b></h2>
 
 knn = NearestNeighbors(n_neighbors = 7)
 model = knn.fit(Atribut_std)
@@ -405,8 +354,6 @@ print('Number of Clusters : ', n_clusters_)
 print('Number of Outliers : ', n_noise_)
 
 #data['Class'] = labels; Atribut_std['Class'] = labels
-
-<h2 style="color:white; display:fill; background-color:#FA5E3C; font-size:150%; letter-spacing:0.5px; padding: 4px;"><b>Hierarchical Clustering</b></h2>
 
 from sklearn.cluster import AgglomerativeClustering
 clustering = AgglomerativeClustering().fit(Atribut_std)
@@ -455,8 +402,6 @@ dendrogram(linkage_data)
 plt.tight_layout()
 plt.show()
 
-<h2 style="color:white; display:fill; background-color:#FA5E3C; font-size:150%; letter-spacing:0.5px; padding: 4px;"><b>Gaussian Mixture Model (GMM) </b></h2>
-
 model_gmm = GaussianMixture(n_components=4, random_state=0).fit(Atribut_std)
 gmm_labels = pd.DataFrame(model_gmm.predict(Atribut_std))
 
@@ -466,10 +411,7 @@ haha['gmm_cluster'] = haha['gmm_cluster'] + 1
 
 haha.head()
 
-<h2 style="color:white; display:fill; background-color:#FA5E3C; font-size:150%; letter-spacing:0.5px; padding: 4px;"><b>k-Means </b></h2>
-
 ### Metode Elbow
-Metode Elbow adalah sebuah metode yang digunakan untuk menentukan jumlah cluster optimal dalam k-means clustering. Metode ini menggunakan perhitungan nilai SSE (Sum of Square Error) pada tiap k-means clustering dengan berbagai kemungkinan nilai K (dari K=2 sampai K=10) dan menunjukkan titik pengubahan yang optimal dengan menggambarkan grafik WCSS (Within-cluster Sum of Squares) terhadap jumlah cluster. Titik pengubahan yang optimal adalah titik yang menjadi "elbow" atau bintang ketika grafik dilihat dari sudut pandang yang tepat. Titik ini merupakan titik dimana jumlah cluster optimal dapat dikenal pasti, yang menjadi titik awal dari pengelompokan data kecelakaan lalu lintas di Kota Semarang.
 
 # Instantiate the KMeans model and visualizer
 model = KMeans(init='k-means++', max_iter=300, n_init=10, random_state=42)
@@ -488,7 +430,6 @@ visualizer.fit(pca_data)
 visualizer.show()
 
 ### Silhouette score
-**Silhouette skor** dari sebuah titik mengukur seberapa dekat titik tersebut berada dengan titik tetangga terdekatnya, di semua klaster. Ini memberikan informasi tentang kualitas pengelompokan yang dapat digunakan untuk menentukan apakah penyesuaian lebih lanjut dengan pengelompokan harus dilakukan pada pengelompokan saat ini. Mari kita lihat data yang sama dengan dua jenis pengelompokan yang berbeda.
 
 import sklearn.metrics as metrics
 for i in range(4,13):
