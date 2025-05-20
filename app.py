@@ -38,7 +38,22 @@ from scipy.cluster.hierarchy import dendrogram, linkage
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler, RobustScaler, PowerTransformer
 from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
-from yellowbrick.cluster import KElbowVisualizer
+
+import streamlit as st
+
+def plot_elbow(X, max_k=10):
+    sse = []
+    for k in range(1, max_k+1):
+        kmeans = KMeans(n_clusters=k, random_state=42)
+        kmeans.fit(X)
+        sse.append(kmeans.inertia_)
+    fig, ax = plt.subplots(figsize=(8,5))
+    ax.plot(range(1, max_k+1), sse, marker='o')
+    ax.set_xlabel('Number of clusters (k)')
+    ax.set_ylabel('Sum of squared distances (SSE)')
+    ax.set_title('Elbow Method For Optimal k')
+    st.pyplot(fig)
+
 
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
