@@ -6,7 +6,7 @@ plotly
 scipy
 termcolor
 scikit-learn
-yellowbrick==1.5.1
+yellowbrick @ git+https://github.com/DistrictDataLabs/yellowbrick.git@develop
 streamlit
 kagglehub
 openpyxl
